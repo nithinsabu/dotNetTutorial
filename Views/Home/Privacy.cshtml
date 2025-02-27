@@ -1,0 +1,16 @@
+﻿@{
+    ViewData["Title"] = "User Details";
+}
+@model WebApplication1.Models.User
+<h1>@ViewData["Title"]</h1>
+
+@* <p>Use this page to detail your site's privacy policy.</p> *@
+@if (Model != null)
+{
+    <p><strong>IP Address:</strong> @Model.IPAddress</p>
+    <p><strong>Visit Time:</strong> @Model.VisitDate</p>
+}
+else
+{
+    <p>No record found for your IP.</p>
+}

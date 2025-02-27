@@ -1,0 +1,30 @@
+﻿@* @model WebApplication1.Models.NameCountry *@
+
+@{
+    ViewData["Title"] = "Name and Country";
+}
+
+<h1>Fill Name and country</h1>
+
+<div>
+    <form id="nameCountryForm" asp-action="SaveNameCountry" method="post">
+        <input type="text" name="name" placeholder="Name" required />
+        <input type="text" name="country" placeholder="Country" required />
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        document.getElementById("nameCountryForm").addEventListener("submit", async function(event) {
+            event.preventDefault(); 
+
+            let formData = new FormData(this);
+
+            await fetch(this.action, { 
+                method: "POST",
+                body: formData
+            });
+
+            this.reset();
+        });
+    </script>
+</div>
