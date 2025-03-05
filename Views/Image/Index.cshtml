@@ -1,0 +1,25 @@
+@model List<(string Id, string Name, string Description)>
+
+@{
+    ViewData["Title"] = "Uploaded Images";
+}
+
+<h2>Uploaded Images</h2>
+
+@if (Model.Any())
+{
+    <div>
+        @foreach (var image in Model)
+        {
+            <div>
+                <img src="@Url.Action("GetImage", "Image", new { id = image.Id })" width="200" />
+                <p><strong>@image.Name</strong></p>
+                <p>@image.Description</p>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p>No images found.</p>
+}
