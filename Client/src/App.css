@@ -1,0 +1,50 @@
+body {
+  font-family: sans-serif;
+  background-color: #fff;
+  margin: 0;
+  padding: 10px;
+}
+
+nav ul {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background-color: #eee;
+}
+
+nav ul li {
+  padding: 5px 10px;
+}
+
+.image-list, .upload-form {
+  border: 1px solid #ddd;
+  padding: 10px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.image-item {
+  border-bottom: 1px solid #ddd;
+  padding: 5px 0;
+}
+
+.image-item:last-child {
+  border-bottom: none;
+}
+
+form div {
+  margin-bottom: 10px;
+}
+
+input, textarea, button {
+  width: 100%;
+  padding: 5px;
+  border: 1px solid #ddd;
+}
+
+button {
+  background-color: #eee;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
