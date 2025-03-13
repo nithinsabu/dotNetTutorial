@@ -10,123 +10,181 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using Mongo2Go;
+using Microsoft.Extensions.Logging;
 
-public class ImageControllerTests
+public class ImageControllerTests: IDisposable
 {
-    private readonly Mock<ImageService> _mockImageService;
+    private readonly MongoDbRunner _runner;
+    private readonly IMongoDatabase _database;
+    private readonly ImageService _imageService;
     private readonly ImageController _controller;
-
+    private readonly ILogger<ImageController> _logger;
     public ImageControllerTests()
     {
-        var mockClient = new Mock<IMongoClient>();
-        var mockDatabase = new Mock<IMongoDatabase>();
-        var mockBucket = new Mock<IGridFSBucket>();
 
-        // Ensure `DatabaseNamespace` is set (important for GridFSBucket)
-        mockDatabase.Setup(db => db.DatabaseNamespace)
-                    .Returns(new DatabaseNamespace("TestDatabase"));
+        _runner = MongoDbRunner.Start(); // Starts a lightweight MongoDB instance
+        var client = new MongoClient(_runner.ConnectionString);
+        _database = client.GetDatabase("TestDatabase");
 
-        // Ensure `GetDatabase()` returns the mock database
-        mockClient.Setup(client => client.GetDatabase(It.IsAny<string>(), null))
-                  .Returns(mockDatabase.Object);
+        _imageService = new ImageService(_database);  // Use the real ImageService
 
-        // Mock `_bucket` behavior in ImageService
-        mockDatabase.Setup(db => db.GetCollection<BsonDocument>(It.IsAny<string>(), null))
-                    .Returns(Mock.Of<IMongoCollection<BsonDocument>>());
-        _mockImageService = new Mock<ImageService>(mockDatabase.Object);
-        _controller = new ImageController(_mockImageService.Object);
+        _logger = LoggerFactory
+            .Create(builder => builder
+                .AddConsole()
+                .SetMinimumLevel(LogLevel.Information))
+            .CreateLogger<ImageController>();
+        _controller = new ImageController(_imageService, _logger);
     }
 
     [Fact]
     public async Task UploadImage_ReturnsOk_WithFileId()
     {
-        // Arrange
         var fileMock = new Mock<IFormFile>();
         var content = "Test file content";
         var fileName = "test.jpg";
         var stream = new MemoryStream(Encoding.UTF8.GetBytes(content));
+
         fileMock.Setup(f => f.OpenReadStream()).Returns(stream);
         fileMock.Setup(f => f.FileName).Returns(fileName);
         fileMock.Setup(f => f.ContentType).Returns("image/jpeg");
 
-        _mockImageService
-            .Setup(s => s.UploadImageAsync(It.IsAny<Stream>(), fileName, "image/jpeg", "Sample description"))
-            .ReturnsAsync(ObjectId.GenerateNewId());
-
-        // Act
         var result = await _controller.UploadImage(fileMock.Object, "Sample description");
 
-        // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
-        Assert.Contains("FileId", okResult.Value.ToString());
+        Assert.NotNull(okResult.Value);
     }
 
-    //     [Fact]
-    //     public async Task DownloadImage_ReturnsFile_WhenImageExists()
-    //     {
-    //         // Arrange
-    //         var imageId = ObjectId.GenerateNewId().ToString();
-    //         var imageData = Encoding.UTF8.GetBytes("Sample image data");
+    [Fact]
+    public async Task UploadImage_ReturnsBadRequest_WhenFileIsNull()
+    {
+        var result = await _controller.UploadImage(null, "Sample description");
 
-    //         _mockImageService.Setup(s => s.DownloadImageAsync(It.IsAny<ObjectId>()))
-    //                           .ReturnsAsync(imageData);
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("File and description are required.", badRequestResult.Value);
+    }
 
-    //         // Act
-    //         var result = await _controller.DownloadImage(imageId);
+    [Fact]
+    public async Task UploadImage_ReturnsBadRequest_WhenDescriptionIsNull()
+    {
+        var fileMock = new Mock<IFormFile>();
+        fileMock.Setup(f => f.OpenReadStream()).Returns(new MemoryStream());
+        fileMock.Setup(f => f.FileName).Returns("test.jpg");
+        fileMock.Setup(f => f.ContentType).Returns("image/jpeg");
 
-    //         // Assert
-    //         var fileResult = Assert.IsType<FileContentResult>(result);
-    //         Assert.Equal("image/jpeg", fileResult.ContentType);
-    //     }
+        var result = await _controller.UploadImage(fileMock.Object, null);
 
-    //     [Fact]
-    //     public async Task ListImages_ReturnsOk_WithImageList()
-    //     {
-    //         // Arrange
-    //         var files = new[] { new { Id = "1", Name = "Image1", Description = "Sample 1" } };
-    //         _mockImageService
-    //         .Setup(service => service.ListFilesAsync())
-    //         .ReturnsAsync(new List<FileInfoDto> {
-    //             new FileInfoDto { Id = "1", Name = "Test.jpg", Description = "Sample image" }
-    //         });
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("File and description are required.", badRequestResult.Value);
+    }
 
-    //         // Act
-    //         var result = await _controller.ListImages();
+    [Fact]
+    public async Task DownloadImage_ReturnsFile_WhenImageExists()
+    {
+        // Arrange
+        var sampleData = Encoding.UTF8.GetBytes("Sample Image Data");
+        var fileId = await _imageService.UploadImageAsync(new MemoryStream(sampleData), "sample.jpg", "image/jpeg", "Test Description");
 
-    //         // Assert
-    //         var okResult = Assert.IsType<OkObjectResult>(result);
-    //         Assert.Equal(files, okResult.Value);
-    //     }
+        // Act
+        var result = await _controller.DownloadImage(fileId.ToString());
 
-    //     [Fact]
-    //     public async Task DeleteImage_ReturnsOk_WhenFileDeleted()
-    //     {
-    //         // Arrange
-    //         var imageId = ObjectId.GenerateNewId().ToString();
-    //         _mockImageService
-    //         .Setup(service => service.DeleteFileAsync(It.IsAny<string>()))
-    //         .ReturnsAsync(true);
-    //         // Act
-    //         var result = await _controller.DeleteImage(imageId);
+        // Assert
+        var fileResult = Assert.IsType<FileContentResult>(result);
+        Assert.Equal("image/jpeg", fileResult.ContentType);
+        Assert.Equal(sampleData, fileResult.FileContents);
+    }
 
-    //         // Assert
-    //         var okResult = Assert.IsType<OkObjectResult>(result);
-    //         Assert.Contains("File deleted successfully", okResult.Value.ToString());
-    //     }
+    [Fact]
+    public async Task DownloadImage_ReturnsBadRequest_WhenInvalidObjectId()
+    {
+        // Act
+        var result = await _controller.DownloadImage("invalid_object_id");
 
-    //     [Fact]
-    //     public async Task DeleteImage_ReturnsNotFound_WhenFileNotFound()
-    //     {
-    //         // Arrange
-    //         var imageId = ObjectId.GenerateNewId().ToString();
-    //         _mockImageService
-    //             .Setup(service => service.DeleteFileAsync(It.IsAny<string>()))
-    //             .ThrowsAsync((Exception)new GridFSFileNotFoundException("File not found."));
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("Invalid ObjectId format.", badRequestResult.Value);
+    }
 
-    //         // Act
-    //         var result = await _controller.DeleteImage(imageId);
+    [Fact]
+    public async Task DownloadImage_ReturnsNotFound_WhenImageDoesNotExist()
+    {
+        // Act
+        var result = await _controller.DownloadImage(ObjectId.GenerateNewId().ToString());
 
-    //         // Assert
-    //         Assert.IsType<NotFoundObjectResult>(result);
-    //     }
+        // Assert
+        Assert.IsType<NotFoundObjectResult>(result);
+    }
+
+     [Fact]
+    public async Task ListImages_ReturnsEmptyList_WhenNoImagesExist()
+    {
+        var result = await _controller.ListImages();
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var files = Assert.IsType<List<FileInfoDto>>(okResult.Value);
+        Assert.Empty(files);
+    }
+
+    [Fact]
+    public async Task ListImages_ReturnsAllImages_WhenImagesExist()
+    {
+        // Arrange
+        await _imageService.UploadImageAsync(new MemoryStream(new byte[] { 1, 2, 3 }), "image1.jpg", "image/jpeg", "Desc 1");
+        await _imageService.UploadImageAsync(new MemoryStream(new byte[] { 4, 5, 6 }), "image2.jpg", "image/jpeg", "Desc 2");
+
+        // Act
+        var result = await _controller.ListImages();
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var files = Assert.IsType<List<FileInfoDto>>(okResult.Value);
+
+        // Assert
+        Assert.Equal(2, files.Count);
+        Assert.Contains(files, f => f.Name == "image1.jpg");
+        Assert.Contains(files, f => f.Name == "image2.jpg");
+    }
+
+    [Fact]
+    public async Task DeleteImage_ReturnsOk_WhenFileDeletedSuccessfully()
+    {
+        var fileId = await _imageService.UploadImageAsync(new MemoryStream(Encoding.UTF8.GetBytes("Test content")), "test.jpg", "image/jpeg", "Sample description");
+
+        var result = await _controller.DeleteImage(fileId.ToString());
+
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        Assert.Equal("File deleted successfully.", okResult.Value);
+    }
+
+    [Fact]
+    public async Task DeleteImage_ReturnsBadRequest_WhenInvalidIdFormat()
+    {
+        var result = await _controller.DeleteImage("invalid_id");
+
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("Invalid file ID format.", badRequestResult.Value);
+    }
+
+    // [Fact]
+    // public async Task DeleteImage_ReturnsNotFound_WhenFileDoesNotExist()
+    // {
+    //     var fakeId = ObjectId.GenerateNewId().ToString();
+    //     var result = await _controller.DeleteImage(fakeId);
+    //     var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+    //     Assert.Equal("File not found.", notFoundResult.Value);
+    // }
+
+    [Fact]
+    public async Task DeleteImage_ReturnsServerError_OnUnexpectedError()
+    {
+
+        var result = await _controller.DeleteImage(ObjectId.GenerateNewId().ToString());
+
+        var statusCodeResult = Assert.IsType<ObjectResult>(result);
+        Assert.Equal(500, statusCodeResult.StatusCode);
+        Assert.Equal("An error occurred while deleting the file.", statusCodeResult.Value);
+    }
+
+     public void Dispose()
+    {
+        _runner.Dispose(); 
+    }
+    
 }

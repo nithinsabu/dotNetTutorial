@@ -2,17 +2,21 @@ using WebAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Driver.GridFS;
+using System.Runtime.InteropServices;
 namespace WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+
     public class ImageController : ControllerBase
     {
         private readonly ImageService _imageService;
+        private readonly ILogger<ImageController> _logger;
 
-        public ImageController(ImageService imageService)
+        public ImageController(ImageService imageService, ILogger<ImageController> logger)
         {
             _imageService = imageService;
+            _logger = logger;
         }
         // [HttpGet]
         // public string Sample(){
@@ -41,7 +45,9 @@ namespace WebAPI.Controllers
                 return BadRequest("Invalid ObjectId format.");
 
             var imageData = await _imageService.DownloadImageAsync(fileId);
-            return File(imageData, "image/jpeg"); // Change content type as needed
+            if (imageData == null || imageData.Length == 0)
+                return NotFound("Image not found or empty.");
+            return File(imageData, "image/jpeg"); 
         }
 
         [HttpGet]
@@ -59,19 +65,20 @@ namespace WebAPI.Controllers
             try
             {
                 await _imageService.DeleteFileAsync(id);
-                return Ok(new { Message = "File deleted successfully." });
+                return Ok("File deleted successfully." );
             }
             catch (FormatException)
             {
-                return BadRequest(new { Error = "Invalid file ID format." });
+                return BadRequest("Invalid file ID format." );
             }
             catch (GridFSFileNotFoundException)
             {
-                return NotFound(new { Error = "File not found." });
+                return NotFound("File not found.");
             }
             catch (Exception)
             {
-                return StatusCode(500, new { Error = "An error occurred while deleting the file." });
+                // return NotFound("File not found.");
+                return StatusCode(500, "An error occurred while deleting the file." );
             }
         }
     }

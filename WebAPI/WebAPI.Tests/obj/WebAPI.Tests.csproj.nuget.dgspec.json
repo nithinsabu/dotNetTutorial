@@ -51,6 +51,10 @@
               "target": "Package",
               "version": "[17.11.1, )"
             },
+            "Mongo2Go": {
+              "target": "Package",
+              "version": "[4.1.0, )"
+            },
             "coverlet.collector": {
               "target": "Package",
               "version": "[6.0.0, )"

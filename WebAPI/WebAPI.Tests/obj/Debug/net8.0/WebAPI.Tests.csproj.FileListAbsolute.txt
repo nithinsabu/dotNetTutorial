@@ -316,6 +316,7 @@ D:\.NetProjects\WebAPI\WebAPI.Tests\bin\Debug\net8.0\refs\System.Xml.XmlSerializ
 D:\.NetProjects\WebAPI\WebAPI.Tests\bin\Debug\net8.0\refs\System.Xml.XPath.dll
 D:\.NetProjects\WebAPI\WebAPI.Tests\bin\Debug\net8.0\refs\System.Xml.XPath.XDocument.dll
 D:\.NetProjects\WebAPI\WebAPI.Tests\bin\Debug\net8.0\refs\WindowsBase.dll
+D:\.NetProjects\WebAPI\WebAPI.Tests\bin\Debug\net8.0\Castle.Core.dll
 D:\.NetProjects\WebAPI\WebAPI.Tests\bin\Debug\net8.0\DnsClient.dll
 D:\.NetProjects\WebAPI\WebAPI.Tests\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 D:\.NetProjects\WebAPI\WebAPI.Tests\bin\Debug\net8.0\Microsoft.AspNetCore.Mvc.Testing.dll
@@ -337,8 +338,10 @@ D:\.NetProjects\WebAPI\WebAPI.Tests\bin\Debug\net8.0\Microsoft.TestPlatform.Comm
 D:\.NetProjects\WebAPI\WebAPI.Tests\bin\Debug\net8.0\Microsoft.TestPlatform.CrossPlatEngine.dll
 D:\.NetProjects\WebAPI\WebAPI.Tests\bin\Debug\net8.0\Microsoft.TestPlatform.Utilities.dll
 D:\.NetProjects\WebAPI\WebAPI.Tests\bin\Debug\net8.0\Microsoft.VisualStudio.TestPlatform.Common.dll
+D:\.NetProjects\WebAPI\WebAPI.Tests\bin\Debug\net8.0\Mongo2Go.dll
 D:\.NetProjects\WebAPI\WebAPI.Tests\bin\Debug\net8.0\MongoDB.Bson.dll
 D:\.NetProjects\WebAPI\WebAPI.Tests\bin\Debug\net8.0\MongoDB.Driver.dll
+D:\.NetProjects\WebAPI\WebAPI.Tests\bin\Debug\net8.0\Moq.dll
 D:\.NetProjects\WebAPI\WebAPI.Tests\bin\Debug\net8.0\Newtonsoft.Json.dll
 D:\.NetProjects\WebAPI\WebAPI.Tests\bin\Debug\net8.0\SharpCompress.dll
 D:\.NetProjects\WebAPI\WebAPI.Tests\bin\Debug\net8.0\Snappier.dll
@@ -431,5 +434,3 @@ D:\.NetProjects\WebAPI\WebAPI.Tests\obj\Debug\net8.0\refint\WebAPI.Tests.dll
 D:\.NetProjects\WebAPI\WebAPI.Tests\obj\Debug\net8.0\WebAPI.Tests.pdb
 D:\.NetProjects\WebAPI\WebAPI.Tests\obj\Debug\net8.0\WebAPI.Tests.genruntimeconfig.cache
 D:\.NetProjects\WebAPI\WebAPI.Tests\obj\Debug\net8.0\ref\WebAPI.Tests.dll
-D:\.NetProjects\WebAPI\WebAPI.Tests\bin\Debug\net8.0\Castle.Core.dll
-D:\.NetProjects\WebAPI\WebAPI.Tests\bin\Debug\net8.0\Moq.dll

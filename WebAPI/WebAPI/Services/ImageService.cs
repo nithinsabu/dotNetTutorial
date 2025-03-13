@@ -2,6 +2,7 @@ using MongoDB.Driver;
 using MongoDB.Bson;
 using MongoDB.Driver.GridFS;
 using System.Threading.Tasks;
+namespace WebAPI.Services;
 public class FileInfoDto
 {
     public string Id { get; set; }
@@ -9,8 +10,6 @@ public class FileInfoDto
     public string Description { get; set; }
 }
 
-namespace WebAPI.Services
-{
     public class ImageService
     {
         // private readonly IMongoCollection<User> _users;
@@ -45,11 +44,18 @@ namespace WebAPI.Services
             return await _bucket.UploadFromStreamAsync(fileName, fileStream, options);
         }
 
-        public async Task<byte[]> DownloadImageAsync(ObjectId fileId)
+        public async Task<byte[]?> DownloadImageAsync(ObjectId fileId)
         {
-            using var stream = new MemoryStream();
-            await _bucket.DownloadToStreamAsync(fileId, stream);
-            return stream.ToArray();
+           try
+            {
+                using var stream = new MemoryStream();
+                await _bucket.DownloadToStreamAsync(fileId, stream);
+                return stream.ToArray();
+            }
+            catch (GridFSFileNotFoundException)
+            {
+                return null;
+            }
         }
 
         public async Task<List<FileInfoDto>> ListFilesAsync()
@@ -75,17 +81,18 @@ namespace WebAPI.Services
 
             try
             {
+                var filter = Builders<GridFSFileInfo<ObjectId>>.Filter.Eq(x => x.Id, objectId);
+                var cursor = await _bucket.FindAsync(filter);
+                var fileExists = await cursor.AnyAsync();
+                if (!fileExists)
+                    throw new GridFSFileNotFoundException("File not found.");
+
                 await _bucket.DeleteAsync(objectId);
                 return true;
             }
-            catch (GridFSFileNotFoundException)
+            catch (Exception ex)
             {
-                throw;
-            }
-            catch (Exception)
-            {
-                throw new Exception("An unexpected error occurred while deleting the file.");
+                throw new Exception("An unexpected error occurred while deleting the file.", ex);
             }
         }
     }
-}

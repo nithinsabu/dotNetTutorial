@@ -37,6 +37,7 @@
       "WebAPI.Tests/1.0.0": {
         "dependencies": {
           "Microsoft.NET.Test.Sdk": "17.11.1",
+          "Mongo2Go": "4.1.0",
           "WebAPI": "1.0.0",
           "coverlet.collector": "6.0.0",
           "Moq": "4.20.72",
@@ -1037,6 +1038,22 @@
         "dependencies": {
           "System.Security.AccessControl": "5.0.0",
           "System.Security.Principal.Windows": "5.0.0"
+        }
+      },
+      "Mongo2Go/4.1.0": {
+        "dependencies": {
+          "Microsoft.Extensions.Logging.Abstractions": "8.0.0",
+          "MongoDB.Driver": "3.2.1",
+          "System.Text.Json": "8.0.0"
+        },
+        "runtime": {
+          "lib/netstandard2.1/Mongo2Go.dll": {
+            "assemblyVersion": "4.0.0.0",
+            "fileVersion": "4.1.0.0"
+          }
+        },
+        "compile": {
+          "lib/netstandard2.1/Mongo2Go.dll": {}
         }
       },
       "MongoDB.Bson/3.2.1": {
@@ -4112,6 +4129,13 @@
       "sha512": "sha512-dDoKi0PnDz31yAyETfRntsLArTlVAVzUzCIvvEDsDsucrl33Dl8pIJG06ePTJTI3tGpeyHS9Cq7Foc/s4EeKcg==",
       "path": "microsoft.win32.registry/5.0.0",
       "hashPath": "microsoft.win32.registry.5.0.0.nupkg.sha512"
+    },
+    "Mongo2Go/4.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-QXpNsQj/k50aO5J/bTXP/0Jb43koXqQtoNAmJUuUfZ5DUtpTtsf3IUEYdJ4mAqtC2rqBKWD5lnm7xDaR6993WA==",
+      "path": "mongo2go/4.1.0",
+      "hashPath": "mongo2go.4.1.0.nupkg.sha512"
     },
     "MongoDB.Bson/3.2.1": {
       "type": "package",
