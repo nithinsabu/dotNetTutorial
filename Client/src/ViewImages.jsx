@@ -1,13 +1,20 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import axios from 'axios';
-
+import {useDispatch, useSelector} from 'react-redux';
+import { addImages, deleteImage } from './redux/actions/images';
 const ViewImages = () => {
-  const [images, setImages] = useState([]);
-  const deleteImage = async (imageID) => {
+  const dispatch = useDispatch();
+  const images = useSelector(state => state.images.imagesList); // what is passed to configureStore = obj. this is obj.reducer.images
+  // console.log(images)
+  useEffect(()=> {
+    console.log(images)
+  }, [images])
+  // const [images, setImages] = useState([]);
+  const deleteImage_ = async (imageID) => {
     try{ 
-        const response = await axios.delete(`http://localhost:5253/api/image/${imageID}`)
-        const temp = [...images];
-        setImages(temp.filter((img) => img.id!==imageID))
+        await axios.delete(`http://localhost:5253/api/image/${imageID}`)
+        // const temp = [...images];
+        dispatch(deleteImage(imageID))
     }catch (error) {
         console.error('Error fetching images:', error);
       }
@@ -16,8 +23,7 @@ const ViewImages = () => {
     const fetchImages = async () => {
       try {
         const response = await axios.get('http://localhost:5253/api/image/');
-        console.log(response.data)
-        setImages(response.data);
+        dispatch(addImages(response.data))
       } catch (error) {
         console.error('Error fetching images:', error);
       }
@@ -37,7 +43,7 @@ const ViewImages = () => {
             alt={image.name} 
             style={{ maxWidth: '300px', height: 'auto' }}
           />
-          <button onClick={() => deleteImage(image.id)}>Delete</button>
+          <button onClick={() => deleteImage_(image.id)}>Delete</button>
         </div>
       ))}
     </div>

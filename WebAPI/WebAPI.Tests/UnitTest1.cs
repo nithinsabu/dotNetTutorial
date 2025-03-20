@@ -10,6 +10,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 using Mongo2Go;
 using Microsoft.Extensions.Logging;
 
@@ -20,9 +21,10 @@ public class ImageControllerTests: IDisposable
     private readonly ImageService _imageService;
     private readonly ImageController _controller;
     private readonly ILogger<ImageController> _logger;
-    public ImageControllerTests()
+    private readonly ITestOutputHelper _output;
+    public ImageControllerTests(ITestOutputHelper output)
     {
-
+        _output = output;
         _runner = MongoDbRunner.Start(); // Starts a lightweight MongoDB instance
         var client = new MongoClient(_runner.ConnectionString);
         _database = client.GetDatabase("TestDatabase");
@@ -34,7 +36,7 @@ public class ImageControllerTests: IDisposable
                 .AddConsole()
                 .SetMinimumLevel(LogLevel.Information))
             .CreateLogger<ImageController>();
-        _controller = new ImageController(_imageService, _logger);
+        _controller = new ImageController(_imageService);
     }
 
     [Fact]
@@ -162,25 +164,29 @@ public class ImageControllerTests: IDisposable
         Assert.Equal("Invalid file ID format.", badRequestResult.Value);
     }
 
-    // [Fact]
-    // public async Task DeleteImage_ReturnsNotFound_WhenFileDoesNotExist()
-    // {
-    //     var fakeId = ObjectId.GenerateNewId().ToString();
-    //     var result = await _controller.DeleteImage(fakeId);
-    //     var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
-    //     Assert.Equal("File not found.", notFoundResult.Value);
-    // }
-
     [Fact]
-    public async Task DeleteImage_ReturnsServerError_OnUnexpectedError()
+    public async Task DeleteImage_ReturnsNotFound_WhenFileDoesNotExist()
     {
-
-        var result = await _controller.DeleteImage(ObjectId.GenerateNewId().ToString());
-
-        var statusCodeResult = Assert.IsType<ObjectResult>(result);
-        Assert.Equal(500, statusCodeResult.StatusCode);
-        Assert.Equal("An error occurred while deleting the file.", statusCodeResult.Value);
+        var fakeId = ObjectId.GenerateNewId().ToString();
+        var result = await _controller.DeleteImage(fakeId);
+        // _output.WriteLine("ABCD");
+        var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+        Assert.Equal("File not found.", notFoundResult.Value);
+        // var statusCodeResult = Assert.IsType<ObjectResult>(result);
+        // Assert.Equal(500, statusCodeResult.StatusCode);
+        // Assert.Equal("An error occurred while deleting the file.", statusCodeResult.Value);
     }
+
+    // [Fact]
+    // public async Task DeleteImage_ReturnsServerError_OnUnexpectedError()
+    // {
+
+    //     var result = await _controller.DeleteImage(ObjectId.GenerateNewId().ToString());
+
+    //     var statusCodeResult = Assert.IsType<ObjectResult>(result);
+    //     Assert.Equal(500, statusCodeResult.StatusCode);
+    //     // Assert.Equal("An error occurred while deleting the file.", statusCodeResult.Value);
+    // }
 
      public void Dispose()
     {

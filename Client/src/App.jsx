@@ -2,7 +2,9 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import ViewImages from './ViewImages';
 import UploadImage from './UploadImage';
 import './App.css'
+// import { useEffect } from 'react';
 function App() {
+
   return (
     <Router>
       <nav>

@@ -2,6 +2,7 @@ using WebAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Driver.GridFS;
+using Xunit.Abstractions;
 using System.Runtime.InteropServices;
 namespace WebAPI.Controllers
 {
@@ -11,12 +12,13 @@ namespace WebAPI.Controllers
     public class ImageController : ControllerBase
     {
         private readonly ImageService _imageService;
-        private readonly ILogger<ImageController> _logger;
-
-        public ImageController(ImageService imageService, ILogger<ImageController> logger)
+        // private readonly ILogger<ImageController> _logger;
+        // private readonly ITestOutputHelper _output;
+        public ImageController(ImageService imageService)
         {
             _imageService = imageService;
-            _logger = logger;
+            // _logger = logger;
+            // _output = output;
         }
         // [HttpGet]
         // public string Sample(){
@@ -75,9 +77,10 @@ namespace WebAPI.Controllers
             {
                 return NotFound("File not found.");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 // return NotFound("File not found.");
+                // _output.WriteLine($"Exception Type: {ex.GetType().FullName}");;
                 return StatusCode(500, "An error occurred while deleting the file." );
             }
         }

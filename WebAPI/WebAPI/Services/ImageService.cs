@@ -2,6 +2,8 @@ using MongoDB.Driver;
 using MongoDB.Bson;
 using MongoDB.Driver.GridFS;
 using System.Threading.Tasks;
+using Xunit.Abstractions; //remove xunit and logger later.
+
 namespace WebAPI.Services;
 public class FileInfoDto
 {
@@ -12,14 +14,13 @@ public class FileInfoDto
 
     public class ImageService
     {
-        // private readonly IMongoCollection<User> _users;
-        // private readonly IMongoCollection<NameCountry> _nameCountry;
         private readonly GridFSBucket _bucket;
         private readonly IMongoDatabase _database;
-
+        // private readonly ITestOutputHelper _output;
         public ImageService(IMongoDatabase database)
         {
             _database = database;
+            // _output = output;
             _bucket = new GridFSBucket(database);
         }
 
@@ -83,16 +84,16 @@ public class FileInfoDto
             {
                 var filter = Builders<GridFSFileInfo<ObjectId>>.Filter.Eq(x => x.Id, objectId);
                 var cursor = await _bucket.FindAsync(filter);
-                var fileExists = await cursor.AnyAsync();
-                if (!fileExists)
+                var files = await cursor.ToListAsync();
+                // _output.WriteLine(files.Count.ToString());
+                if (files.Count==0)
                     throw new GridFSFileNotFoundException("File not found.");
-
                 await _bucket.DeleteAsync(objectId);
                 return true;
             }
             catch (Exception ex)
             {
-                throw new Exception("An unexpected error occurred while deleting the file.", ex);
+                throw ex;
             }
         }
     }
