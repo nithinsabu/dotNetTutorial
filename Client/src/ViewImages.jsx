@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import axios from 'axios';
 import {useDispatch, useSelector} from 'react-redux';
-import { addImages, deleteImage } from './redux/actions/images';
+import { setImages, deleteImage } from './redux/actions/images';
 const ViewImages = () => {
   const dispatch = useDispatch();
   const images = useSelector(state => state.images.imagesList); // what is passed to configureStore = obj. this is obj.reducer.images
@@ -23,7 +23,7 @@ const ViewImages = () => {
     const fetchImages = async () => {
       try {
         const response = await axios.get('http://localhost:5253/api/image/');
-        dispatch(addImages(response.data))
+        dispatch(setImages(response.data))
       } catch (error) {
         console.error('Error fetching images:', error);
       }
