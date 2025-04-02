@@ -5,27 +5,25 @@ services:
       context: ./WebAPI
       dockerfile: Dockerfile
     ports:
-      - "5253:5253"
+      - "8080:8080"
     depends_on:
-      - db
-    environment:
-      - MONGO_URI=mongodb://db:27017
+      - mongo
+    # environment:
+    #   - MONGO_URI=mongodb://mongo:27017
 
   frontend:
     build:
       context: ./Client
       dockerfile: Dockerfile
     ports:
-      - "5173:5173"
+      - "5173:80"
     depends_on:
       - backend
     environment:
-      - VITE_API_URL=http://backend:5253
+      - VITE_API_URL=http://localhost:8080
 
-  db:
+  mongo:
     image: mongo
-    ports:
-      - "27017:27017"
     volumes:
       - mongo_data:/data/db
 

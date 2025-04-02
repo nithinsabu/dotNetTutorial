@@ -31,8 +31,27 @@ const ViewImages = () => {
     fetchImages();
   }, []);
 
+  // const [hello, setHello] = useState("NULL");
+  // const [url, seturl] = useState("NULL");
+
+  // useEffect(() => {
+  //   axios.get(`${import.meta.env.VITE_API_URL}`).then((response) => {
+  //     setHello(response.data);
+  //   })
+  //   .catch((e) => setHello(String(e)))
+  // }, [])
+  // const send = () => {
+  //   axios.get(url).then((response) => {
+  //     setHello(response.data);
+  //   })
+  //   .catch((e) => setHello(String(e)))
+  // }
   return (
     <div className="image-list">
+      {/* <h2>{hello}</h2>
+      <h3>{import.meta.env.VITE_API_URL}</h3>
+      <input type='text' onChange={(e) => seturl(e.target.value)} value={url}/>
+      <button onClick={send}>SEND</button> */}
       <h2>Images</h2>
       {images.map((image) => (
         <div key={image.id} className="image-item">

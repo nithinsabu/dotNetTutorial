@@ -17,7 +17,8 @@ WORKDIR /app
 COPY --from=build /app/out ./
 
 # Expose backend port
-EXPOSE 5253
+EXPOSE 5000
+EXPOSE 8080
 
 # Run the application
 CMD ["dotnet", "WebAPI.dll"]
