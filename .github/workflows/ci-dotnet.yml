@@ -23,10 +23,12 @@ jobs:
           dotnet-version: '8.0.406'
 
       - name: Restore Dependencies
-        run: dotnet restore Client_WebAPI/WebAPI/WebAPI/WebAPI.csproj
+        working-directory: Client_WebAPI/WebAPI
+        run: dotnet restore 
 
       - name: Build Project
-        run: dotnet build Client_WebAPI/WebAPI/WebAPI/WebAPI.csproj --no-restore --configuration Release
+        working-directory: Client_WebAPI/WebAPI
+        run: dotnet build
 
       - name: Run Tests
         working-directory: Client_WebAPI/WebAPI
