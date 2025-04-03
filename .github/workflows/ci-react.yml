@@ -23,11 +23,12 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
+        working-directory: Client_WebAPI/Client
         run: npm install
-
 
       # - name: Run tests
       #   run: npm test
 
       - name: Build project
+        working-directory: Client_WebAPI/Client
         run: npm run build
