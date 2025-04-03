@@ -28,5 +28,6 @@ jobs:
       - name: Build Project
         run: dotnet build Client_WebAPI/WebAPI/WebAPI/WebAPI.csproj --no-restore --configuration Release
 
-      - name: Run Unit Tests
-        run: dotnet test Client_WebAPI/WebAPI/WebAPI/WebAPI.csproj --no-build --verbosity normal
+      - name: Run Tests
+        working-directory: Client_WebAPI/WebAPI
+        run: dotnet test --no-build --verbosity normal
