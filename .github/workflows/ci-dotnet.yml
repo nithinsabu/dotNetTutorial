@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - cicd
   pull_request:
     branches:
       - main
@@ -18,8 +17,6 @@ jobs:
         ports:
           - 27017:27017
     steps:
-      - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y libssl1.1 || sudo apt-get install -y libssl3
       - name: Checkout Code
         uses: actions/checkout@v4
 
