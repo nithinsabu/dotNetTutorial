@@ -1,0 +1,31 @@
+name: CI - .NET
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore Dependencies
+        run: dotnet restore Client_WebAPI/WebAPI/WebAPI.csproj
+
+      - name: Build Project
+        run: dotnet build Client_WebAPI/WebAPI/WebAPI.csproj --no-restore --configuration Release
+
+      - name: Run Unit Tests
+        run: dotnet test Client_WebAPI/WebAPI/WebAPI.csproj --no-build --verbosity normal
