@@ -26,7 +26,8 @@ public class ImageControllerTests: IDisposable
     {
         _output = output;
         _runner = MongoDbRunner.Start(); // Starts a lightweight MongoDB instance
-        var client = new MongoClient(_runner.ConnectionString);
+        var client = new MongoClient("mongodb://localhost:27017");
+        // var client = new MongoClient(_runner.ConnectionString)
         _database = client.GetDatabase("TestDatabase");
 
         _imageService = new ImageService(_database);  // Use the real ImageService
@@ -190,7 +191,8 @@ public class ImageControllerTests: IDisposable
 
      public void Dispose()
     {
-        _runner.Dispose(); 
+        // _runner.Dispose(); 
+        _database.Client.DropDatabase("TestDatabase"); // for github CI
     }
     
 }

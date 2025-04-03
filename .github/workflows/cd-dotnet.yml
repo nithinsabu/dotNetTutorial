@@ -17,3 +17,4 @@ jobs:
           docker build -t ghcr.io/${{ github.actor }}/dotnet-api:latest .
           echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker push ghcr.io/${{ github.actor }}/dotnet-api:latest
+#error faced: GITHUB_TOKEN, made GHCR_PAT instead.
