@@ -192,7 +192,7 @@ public class ImageControllerTests: IDisposable
      public void Dispose()
     {
         // _runner.Dispose(); 
-        _database.Client.DropDatabase("TestDatabaseName"); // for github CI
+        _database.Client.DropDatabase("TestDatabase"); // for github CI
     }
     
 }
