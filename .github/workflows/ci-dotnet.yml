@@ -39,3 +39,4 @@ jobs:
       - name: Run Tests
         working-directory: Client_WebAPI/WebAPI
         run: dotnet test --no-build --verbosity normal
+#Errors faced: Tests were failing. Issue with Mongo2Go. Used local mongodb instead. Fixed Dispose by clearing database after every test.
