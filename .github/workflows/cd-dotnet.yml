@@ -15,5 +15,5 @@ jobs:
         working-directory: Client_WebAPI/WebAPI
         run: |
           docker build -t ghcr.io/${{ github.actor }}/dotnet-api:latest .
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker push ghcr.io/${{ github.actor }}/dotnet-api:latest
