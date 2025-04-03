@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - cicd
   pull_request:
     branches:
       - main
@@ -22,10 +23,10 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Restore Dependencies
-        run: dotnet restore Client_WebAPI/WebAPI/WebAPI.csproj
+        run: dotnet restore Client_WebAPI/WebAPI/WebAPI/WebAPI.csproj
 
       - name: Build Project
-        run: dotnet build Client_WebAPI/WebAPI/WebAPI.csproj --no-restore --configuration Release
+        run: dotnet build Client_WebAPI/WebAPI/WebAPI/WebAPI.csproj --no-restore --configuration Release
 
       - name: Run Unit Tests
-        run: dotnet test Client_WebAPI/WebAPI/WebAPI.csproj --no-build --verbosity normal
+        run: dotnet test Client_WebAPI/WebAPI/WebAPI/WebAPI.csproj --no-build --verbosity normal
