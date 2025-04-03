@@ -26,7 +26,7 @@ public class ImageControllerTests: IDisposable
     {
         _output = output;
         _runner = MongoDbRunner.Start(); // Starts a lightweight MongoDB instance
-        var client = new MongoClient(_runner.ConnectionString);
+        var client = new MongoClient("mongodb://localhost:27017");
         _database = client.GetDatabase("TestDatabase");
 
         _imageService = new ImageService(_database);  // Use the real ImageService
