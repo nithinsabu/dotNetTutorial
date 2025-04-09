@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import axios from 'axios';
 import {useDispatch, useSelector} from 'react-redux';
 import { setImages, deleteImage } from './redux/actions/images';
+import React from 'react';
+
 const ViewImages = () => {
   const dispatch = useDispatch();
   const images = useSelector(state => state.images.imagesList); // what is passed to configureStore = obj. this is obj.reducer.images
