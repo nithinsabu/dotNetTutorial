@@ -4,6 +4,7 @@ using MongoDB.Bson;
 using MongoDB.Driver.GridFS;
 using Xunit.Abstractions;
 using System.Runtime.InteropServices;
+using Newtonsoft.Json.Linq;
 namespace WebAPI.Controllers
 {
     [ApiController]
@@ -14,9 +15,13 @@ namespace WebAPI.Controllers
         private readonly ImageService _imageService;
         // private readonly ILogger<ImageController> _logger;
         // private readonly ITestOutputHelper _output;
-        public ImageController(ImageService imageService)
+        private readonly HttpClient _httpClient;
+        private readonly IConfiguration _config;
+        public ImageController(ImageService imageService, IConfiguration config)
         {
             _imageService = imageService;
+            _config = config;
+            _httpClient = new HttpClient();
             // _logger = logger;
             // _output = output;
         }
@@ -34,7 +39,20 @@ namespace WebAPI.Controllers
 
             using var stream = file.OpenReadStream();
             var fileId = await _imageService.UploadImageAsync(stream, file.FileName, file.ContentType, description);
-            return Ok(new { FileId = fileId.ToString() });
+            stream.Position = 0;
+
+            //using yolo to detect
+            StreamContent sc = new StreamContent(stream);
+            MultipartFormDataContent mpfdc = new MultipartFormDataContent();
+            mpfdc.Add(sc, "file", file.FileName);
+            using HttpResponseMessage response = await _httpClient.PostAsync(_config.GetConnectionString("fastAPI")+"/upload", mpfdc);
+            response.EnsureSuccessStatusCode();
+            string responseBody = await response.Content.ReadAsStringAsync();
+            // Console.WriteLine(responseBody);
+            // dynamic returnObject = JObject.Parse(responseBody);
+            // Console.WriteLine(returnObject["person 1"]);
+            // return Ok(returnObject);
+            return Content(responseBody, "application/json");
         }
 
 
@@ -57,7 +75,6 @@ namespace WebAPI.Controllers
         {
             var files = await _imageService.ListFilesAsync();
             // Console.WriteLine(string.Join("\n", files.Select(f => $"ID: {f.Id}, Name: {f.Name}, Description: {f.Description}")));
-
             return Ok(files);
         }
 
