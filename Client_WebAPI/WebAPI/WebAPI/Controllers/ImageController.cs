@@ -45,9 +45,16 @@ namespace WebAPI.Controllers
             StreamContent sc = new StreamContent(stream);
             MultipartFormDataContent mpfdc = new MultipartFormDataContent();
             mpfdc.Add(sc, "file", file.FileName);
-            using HttpResponseMessage response = await _httpClient.PostAsync(_config.GetConnectionString("fastAPI")+"/upload", mpfdc);
-            response.EnsureSuccessStatusCode();
-            string responseBody = await response.Content.ReadAsStringAsync();
+            string responseBody = "";
+            try
+            {
+                using HttpResponseMessage response = await _httpClient.PostAsync(_config.GetConnectionString("fastAPI") + "/upload", mpfdc);
+                responseBody = response.IsSuccessStatusCode ? await response.Content.ReadAsStringAsync() : "";
+            }
+            catch
+            {
+                responseBody = "";
+            }
             // Console.WriteLine(responseBody);
             // dynamic returnObject = JObject.Parse(responseBody);
             // Console.WriteLine(returnObject["person 1"]);
@@ -67,7 +74,7 @@ namespace WebAPI.Controllers
             var imageData = await _imageService.DownloadImageAsync(fileId);
             if (imageData == null || imageData.Length == 0)
                 return NotFound("Image not found or empty.");
-            return File(imageData, "image/jpeg"); 
+            return File(imageData, "image/jpeg");
         }
 
         [HttpGet]
@@ -84,11 +91,11 @@ namespace WebAPI.Controllers
             try
             {
                 await _imageService.DeleteFileAsync(id);
-                return Ok("File deleted successfully." );
+                return Ok("File deleted successfully.");
             }
             catch (FormatException)
             {
-                return BadRequest("Invalid file ID format." );
+                return BadRequest("Invalid file ID format.");
             }
             catch (GridFSFileNotFoundException)
             {
@@ -98,7 +105,7 @@ namespace WebAPI.Controllers
             {
                 // return NotFound("File not found.");
                 // _output.WriteLine($"Exception Type: {ex.GetType().FullName}");;
-                return StatusCode(500, "An error occurred while deleting the file." );
+                return StatusCode(500, "An error occurred while deleting the file.");
             }
         }
     }
