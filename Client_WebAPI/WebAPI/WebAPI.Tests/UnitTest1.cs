@@ -13,7 +13,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Mongo2Go;
 using Microsoft.Extensions.Logging;
-
+using Microsoft.Extensions.Configuration;
 public class ImageControllerTests: IDisposable
 {
     private readonly MongoDbRunner _runner;
@@ -37,7 +37,18 @@ public class ImageControllerTests: IDisposable
                 .AddConsole()
                 .SetMinimumLevel(LogLevel.Information))
             .CreateLogger<ImageController>();
-        _controller = new ImageController(_imageService);
+
+        var mockConfig = new Mock<IConfiguration>();
+
+// Mock GetConnectionString for MongoDB
+        mockConfig.Setup(c => c.GetConnectionString("MongoDB"))
+                .Returns("mongodb://localhost:27017");
+
+        // Mock GetConnectionString for FastAPI
+        mockConfig.Setup(c => c.GetConnectionString("FastAPI"))
+                .Returns("http://localhost:8000");
+                
+        _controller = new ImageController(_imageService, mockConfig.Object);
     }
 
     [Fact]

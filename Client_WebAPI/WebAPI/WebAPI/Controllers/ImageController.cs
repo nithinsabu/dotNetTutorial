@@ -4,6 +4,7 @@ using MongoDB.Bson;
 using MongoDB.Driver.GridFS;
 using Xunit.Abstractions;
 using System.Runtime.InteropServices;
+using Newtonsoft.Json.Linq;
 namespace WebAPI.Controllers
 {
     [ApiController]
@@ -14,9 +15,13 @@ namespace WebAPI.Controllers
         private readonly ImageService _imageService;
         // private readonly ILogger<ImageController> _logger;
         // private readonly ITestOutputHelper _output;
-        public ImageController(ImageService imageService)
+        private readonly HttpClient _httpClient;
+        private readonly IConfiguration _config;
+        public ImageController(ImageService imageService, IConfiguration config)
         {
             _imageService = imageService;
+            _config = config;
+            _httpClient = new HttpClient();
             // _logger = logger;
             // _output = output;
         }
@@ -34,7 +39,27 @@ namespace WebAPI.Controllers
 
             using var stream = file.OpenReadStream();
             var fileId = await _imageService.UploadImageAsync(stream, file.FileName, file.ContentType, description);
-            return Ok(new { FileId = fileId.ToString() });
+            stream.Position = 0;
+
+            //using yolo to detect
+            StreamContent sc = new StreamContent(stream);
+            MultipartFormDataContent mpfdc = new MultipartFormDataContent();
+            mpfdc.Add(sc, "file", file.FileName);
+            string responseBody = "";
+            try
+            {
+                using HttpResponseMessage response = await _httpClient.PostAsync(_config.GetConnectionString("fastAPI") + "/upload", mpfdc);
+                responseBody = response.IsSuccessStatusCode ? await response.Content.ReadAsStringAsync() : "";
+            }
+            catch
+            {
+                responseBody = "";
+            }
+            // Console.WriteLine(responseBody);
+            // dynamic returnObject = JObject.Parse(responseBody);
+            // Console.WriteLine(returnObject["person 1"]);
+            // return Ok(returnObject);
+            return Content(responseBody, "application/json");
         }
 
 
@@ -49,7 +74,7 @@ namespace WebAPI.Controllers
             var imageData = await _imageService.DownloadImageAsync(fileId);
             if (imageData == null || imageData.Length == 0)
                 return NotFound("Image not found or empty.");
-            return File(imageData, "image/jpeg"); 
+            return File(imageData, "image/jpeg");
         }
 
         [HttpGet]
@@ -57,7 +82,6 @@ namespace WebAPI.Controllers
         {
             var files = await _imageService.ListFilesAsync();
             // Console.WriteLine(string.Join("\n", files.Select(f => $"ID: {f.Id}, Name: {f.Name}, Description: {f.Description}")));
-
             return Ok(files);
         }
 
@@ -67,11 +91,11 @@ namespace WebAPI.Controllers
             try
             {
                 await _imageService.DeleteFileAsync(id);
-                return Ok("File deleted successfully." );
+                return Ok("File deleted successfully.");
             }
             catch (FormatException)
             {
-                return BadRequest("Invalid file ID format." );
+                return BadRequest("Invalid file ID format.");
             }
             catch (GridFSFileNotFoundException)
             {
@@ -81,7 +105,7 @@ namespace WebAPI.Controllers
             {
                 // return NotFound("File not found.");
                 // _output.WriteLine($"Exception Type: {ex.GetType().FullName}");;
-                return StatusCode(500, "An error occurred while deleting the file." );
+                return StatusCode(500, "An error occurred while deleting the file.");
             }
         }
     }

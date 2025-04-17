@@ -5,7 +5,7 @@ const UploadImage = () => {
   const [file, setFile] = useState(null);
   const [description, setDescription] = useState('');
   const [isUploading, setIsUploading] = useState(false);
-
+  const [objects, setObjects] = useState({});
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!file) return;
@@ -16,11 +16,13 @@ const UploadImage = () => {
     formData.append('description', description);
 
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/api/Image/upload`, formData, {
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/Image/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       });
+      // console.log(JSON.stringify(response.data, null, 2))
+      setObjects(response.data)
       alert('Image uploaded successfully!');
       setFile(null);
       setDescription('');
@@ -59,7 +61,12 @@ const UploadImage = () => {
           {isUploading ? 'Uploading...' : 'Upload Image'}
         </button>
       </form>
+        {Object.entries(objects).map(([key, value]) => (
+          <li key={key}>{`${key}: ${value}`}</li>
+        ))}
+        
     </div>
+
   );
 };
 
