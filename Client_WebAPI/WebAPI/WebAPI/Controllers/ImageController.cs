@@ -4,7 +4,6 @@ using MongoDB.Bson;
 using MongoDB.Driver.GridFS;
 using Xunit.Abstractions;
 using System.Runtime.InteropServices;
-using Newtonsoft.Json.Linq;
 namespace WebAPI.Controllers
 {
     [ApiController]
@@ -48,7 +47,7 @@ namespace WebAPI.Controllers
             string responseBody = "";
             try
             {
-                using HttpResponseMessage response = await _httpClient.PostAsync(_config.GetConnectionString("fastAPI") + "/upload", mpfdc);
+                using HttpResponseMessage response = await _httpClient.PostAsync(_config.GetConnectionString("FastAPI") + "/upload", mpfdc);
                 responseBody = response.IsSuccessStatusCode ? await response.Content.ReadAsStringAsync() : "";
             }
             catch

@@ -39,20 +39,12 @@ public class ImageControllerTests: IDisposable
             .CreateLogger<ImageController>();
 
         var mockConfig = new Mock<IConfiguration>();
-
-// Mock GetConnectionString for MongoDB
-        mockConfig.Setup(c => c.GetConnectionString("MongoDB"))
-                .Returns("mongodb://localhost:27017");
-
-        // Mock GetConnectionString for FastAPI
-        mockConfig.Setup(c => c.GetConnectionString("FastAPI"))
-                .Returns("http://localhost:8000");
                 
         _controller = new ImageController(_imageService, mockConfig.Object);
     }
 
     [Fact]
-    public async Task UploadImage_ReturnsOk_WithFileId()
+    public async Task UploadImage_Returns_Content()
     {
         var fileMock = new Mock<IFormFile>();
         var content = "Test file content";
@@ -65,8 +57,7 @@ public class ImageControllerTests: IDisposable
 
         var result = await _controller.UploadImage(fileMock.Object, "Sample description");
 
-        var okResult = Assert.IsType<OkObjectResult>(result);
-        Assert.NotNull(okResult.Value);
+        var okResult = Assert.IsType<ContentResult>(result);
     }
 
     [Fact]
