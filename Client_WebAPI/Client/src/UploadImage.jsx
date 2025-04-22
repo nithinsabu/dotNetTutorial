@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState } from 'react';
 import axios from 'axios';
 
@@ -9,18 +10,18 @@ const UploadImage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!file) return;
-
     setIsUploading(true);
     const formData = new FormData();
     formData.append('file', file);
     formData.append('description', description);
 
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/Image/upload`, formData, {
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/Image/upload`,formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
-      });
+      }
+    );
       // console.log(JSON.stringify(response.data, null, 2))
       setObjects(response.data)
       alert('Image uploaded successfully!');
@@ -39,8 +40,9 @@ const UploadImage = () => {
       <h2>Upload Image</h2>
       <form onSubmit={handleSubmit}>
         <div>
-          <label>Image File:</label>
+          <label htmlFor='image'>Image File:</label>
           <input
+            id='image'
             type="file"
             accept="image/*"
             onChange={(e) => setFile(e.target.files[0])}
@@ -49,8 +51,9 @@ const UploadImage = () => {
         </div>
         
         <div>
-          <label>Description:</label>
+          <label htmlFor='desc'>Description:</label>
           <textarea
+            id='desc'
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             required

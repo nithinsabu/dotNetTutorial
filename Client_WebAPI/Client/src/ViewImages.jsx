@@ -1,3 +1,4 @@
+import React from 'react';
 import { useEffect } from 'react';
 import axios from 'axios';
 import {useDispatch, useSelector} from 'react-redux';
@@ -6,9 +7,9 @@ const ViewImages = () => {
   const dispatch = useDispatch();
   const images = useSelector(state => state.images.imagesList); // what is passed to configureStore = obj. this is obj.reducer.images
   // console.log(images)
-  useEffect(()=> {
-    console.log(images)
-  }, [images])
+  // useEffect(()=> {
+  //   console.log(images)
+  // }, [images])
   // const [images, setImages] = useState([]);
   const deleteImage_ = async (imageID) => {
     try{ 
