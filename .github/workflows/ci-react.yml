@@ -28,6 +28,7 @@ jobs:
         run: npm install
 
       - name: Run tests
+        working-directory: Client_WebAPI/Client       
         run: npm test
 
       - name: Build project
